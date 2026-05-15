@@ -84,6 +84,10 @@
         <text class="resetTitle">恢复默认设置</text>
       </div>
 
+      <div class="cardBtn" @click="goAbout">
+        <text class="cardBtnText">关于</text>
+      </div>
+
     </div>
 
     <!-- bottom bar -->
@@ -180,6 +184,12 @@ export default {
 
   goBack() {
     router.back()
+  },
+
+  goAbout() {
+    router.push({
+      uri: "/pages/detail"
+    })
   },
 
   saveAndExit() {
@@ -312,6 +322,22 @@ export default {
   font-size: 22px;
   color: rgba(255,255,255,0.5);
   margin-top: 6px;
+}
+
+.cardBtn {
+  margin-top: 20px;
+  height: 84px;
+  background-color: rgba(255,255,255,0.06);
+  border-radius: 24px;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardBtnText {
+  font-size: 30px;
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
 }
 
 /* bottom */

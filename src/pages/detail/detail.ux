@@ -1,26 +1,118 @@
 <template>
-  <div class="demo-page">
-    <text class="title">{{text}}</text>
+  <div class="page">
+
+    <div class="top">
+      <text class="title">关于</text>
+
+      <div class="backWrap" @click="goBack">
+        <image class="backIcon" src="/common/icon/back.png" />
+      </div>
+    </div>
+
+    <div class="card">
+      <text class="cardTitle">开发人员</text>
+
+      <div class="block">
+        <text class="line">@曉凛</text>
+      </div>
+
+      <div class="block">
+        <text class="line">@无源流沙</text>
+      </div>
+    </div>
+
+    <div class="card">
+      <text class="cardTitle">开源地址</text>
+
+      <div class="block">
+        <text class="link">
+          https://github.com/SmallK111407/com.akirin.propomo
+        </text>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
+import router from '@system.router'
+
 export default {
-  private: {
-    text: '欢迎打开详情页'
+
+  onInit() {},
+
+  goBack() {
+    router.back()
   }
 }
 </script>
 
 <style>
-.demo-page {
+.page {
+  flex: 1;
+  background-color: #000;
+  padding: 20px;
   flex-direction: column;
+}
+
+/* 顶部栏 */
+.top {
+  height: 110px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 左上标题 */
+.title {
+  font-size: 50px;
+  color: #fff;
+  font-weight: 700;
+  transform: translate(6px, 6px);
+}
+
+/* 右上返回按钮 */
+.backWrap {
+  width: 113px;
+  height: 80px;
   justify-content: center;
   align-items: center;
 }
 
-.title {
-  font-size: 20px;
-  text-align: center;
+/* back 图标保持原尺寸 */
+.backIcon {
+  width: 113px;
+  height: 80px;
+}
+
+/* 卡片 */
+.card {
+  margin-top: 20px;
+  padding: 22px;
+  background-color: rgba(255,255,255,0.06);
+  border-radius: 24px;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-size: 28px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 16px;
+}
+
+.block {
+  padding: 10px 0;
+  flex-direction: column;
+}
+
+.line {
+  font-size: 34px;
+  color: #fff;
+}
+
+.link {
+  font-size: 26px;
+  color: #2f6fff;
+  word-break: break-all;
 }
 </style>
