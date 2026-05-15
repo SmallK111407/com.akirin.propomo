@@ -1,0 +1,280 @@
+<template>
+  <div class="page">
+
+    <div class="top">
+      <text class="title">番茄钟Pro</text>
+
+      <div class="iconWrap" @click="onSetting">
+        <image class="icon" src="/common/icon/more.png" />
+      </div>
+    </div>
+
+    <div class="center">
+      <text class="time">{{displayTime}}</text>
+    </div>
+
+    <div class="bottom">
+      <div class="btn start" @click="startTimer">
+        <text class="btnText">开始</text>
+      </div>
+
+      <div class="btn pause" @click="pauseTimer">
+        <text class="btnText">暂停</text>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script>
+import storage from '@system.storage'
+import router from '@system.router'
+import vibrator from '@system.vibrator'
+
+export default {
+
+  private: {
+    focusTime: 1500,
+    breakTime: 300,
+
+    left: 1500,
+    displayTime: "25:00",
+
+    running: false,
+    startTime: 0,
+    totalTime: 1500,
+
+    mode: "work",
+
+    vibrateOn: true,
+    vibrateDuration: 1,
+
+    alarmFired: false
+  },
+
+  onInit() {
+    this.loadSettings()
+
+    setTimeout(() => {
+      this.left = this.focusTime
+      this.totalTime = this.focusTime
+      this.updateUI()
+    }, 80)
+  },
+
+  onShow() {
+    if (this.running) {
+      this.tick()
+    }
+  },
+
+  loadSettings() {
+
+    storage.get({
+      key: "focusTime",
+      success: (data) => {
+        if (data) {
+          this.focusTime = parseInt(data)
+          this.left = this.focusTime
+          this.totalTime = this.focusTime
+          this.updateUI()
+        }
+      }
+    })
+
+    storage.get({
+      key: "breakTime",
+      success: (data) => {
+        if (data) this.breakTime = parseInt(data)
+      }
+    })
+
+    storage.get({
+      key: "vibrateOn",
+      success: (data) => {
+        if (data !== undefined) {
+          this.vibrateOn = data === "true"
+        }
+      }
+    })
+
+    storage.get({
+      key: "vibrateDuration",
+      success: (data) => {
+        if (data) this.vibrateDuration = parseInt(data)
+      }
+    })
+  },
+
+  formatTime(t) {
+    const m = Math.floor(t / 60)
+    const s = t % 60
+    return `${m}:${s < 10 ? "0" + s : s}`
+  },
+
+  updateUI() {
+    this.displayTime = this.formatTime(this.left)
+  },
+
+  startTimer() {
+    if (this.running) return
+
+    this.running = true
+    this.startTime = Date.now()
+    this.totalTime = this.left
+
+    this.tick()
+  },
+
+  pauseTimer() {
+    this.running = false
+    this.totalTime = this.left
+  },
+
+  switchMode() {
+
+    if (this.mode === "work") {
+      this.mode = "break"
+      this.left = this.breakTime
+      this.totalTime = this.breakTime
+    } else {
+      this.mode = "work"
+      this.left = this.focusTime
+      this.totalTime = this.focusTime
+    }
+
+    this.alarmFired = false
+
+    this.startTime = Date.now()
+    this.updateUI()
+
+    this.running = true
+    this.tick()
+  },
+  simulateVibrate(seconds) {
+
+const total = seconds * 1000
+let elapsed = 0
+
+const step = () => {
+
+  vibrator.vibrate({
+    duration: 120
+  })
+
+  elapsed += 200
+
+  if (elapsed < total) {
+    setTimeout(step, 200)
+  }
+}
+
+step()
+},
+
+  tick() {
+
+    if (!this.running) return
+
+    const now = Date.now()
+    const elapsed = Math.floor((now - this.startTime) / 1000)
+
+    this.left = this.totalTime - elapsed
+
+    if (this.left <= 0) {
+
+      this.left = 0
+      this.updateUI()
+
+      // 🔥 只震动一次
+      if (!this.alarmFired) {
+        this.alarmFired = true
+
+        if (this.vibrateOn) {
+          this.simulateVibrate(this.vibrateDuration)
+        }
+
+        this.switchMode()
+      }
+
+      return
+    }
+
+    this.updateUI()
+
+    setTimeout(() => {
+      this.tick()
+    }, 1000)
+  },
+
+  onSetting() {
+    router.push({
+      uri: "/pages/setting"
+    })
+  }
+}
+</script>
+
+<style>
+.page {
+  flex: 1;
+  background-color: #000;
+  flex-direction: column;
+}
+
+.top {
+  height: 120px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+}
+
+.title {
+  font-size: 40px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.center {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.time {
+  font-size: 100px;
+  color: #fff;
+  font-weight: 800;
+}
+
+.bottom {
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 20px;
+  padding-bottom: 50px;
+}
+
+.btn {
+  width: 50%;
+  height: 70px;
+  border-radius: 25px;
+  justify-content: center;
+  align-items: center;
+}
+
+.start {
+  background-color: #2f6fff;
+  margin-right: 10px;
+}
+
+.pause {
+  background-color: rgba(255,255,255,0.15);
+}
+
+.btnText {
+  font-size: 40px;
+  color: #fff;
+  font-weight: 700;
+}
+</style>
