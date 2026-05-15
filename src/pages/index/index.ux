@@ -57,8 +57,9 @@ export default {
   },
 
   onShow() {
+    this.refreshConfig()
     if (this.running) {
-      this.tick()
+    this.tick()
     }
   },
 
@@ -163,8 +164,33 @@ export default {
     this.tick()
   },
 
+  refreshConfig() {
+
+storage.get({
+  key: "vibrateOn",
+  success: (data) => {
+    this.vibrateOn = String(data) === "true"
+  }
+})
+
+storage.get({
+  key: "vibrateDuration",
+  success: (data) => {
+    if (data) this.vibrateDuration = parseInt(data)
+  }
+})
+},
+
   tick() {
     if (!this.running) return
+
+    if (this._cfgTimer) {
+    clearTimeout(this._cfgTimer)
+    }
+
+    this._cfgTimer = setTimeout(() => {
+    this.refreshConfig()
+    }, 0)
 
     const now = Date.now()
     const elapsed = Math.floor((now - this.startTime) / 1000)
