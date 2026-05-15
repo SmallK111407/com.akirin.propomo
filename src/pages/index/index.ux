@@ -36,25 +36,19 @@ export default {
   private: {
     focusTime: 1500,
     breakTime: 300,
-
     left: 1500,
     displayTime: "25:00",
-
     running: false,
     startTime: 0,
     totalTime: 1500,
-
     mode: "work",
-
     vibrateOn: true,
     vibrateDuration: 1,
-
     alarmFired: false
   },
 
   onInit() {
     this.loadSettings()
-
     setTimeout(() => {
       this.left = this.focusTime
       this.totalTime = this.focusTime
@@ -68,11 +62,7 @@ export default {
     }
   },
 
-  // ======================
-  // settings
-  // ======================
   loadSettings() {
-
     storage.get({
       key: "focusTime",
       success: (data) => {
@@ -96,7 +86,7 @@ export default {
       key: "vibrateOn",
       success: (data) => {
         if (data !== undefined) {
-          this.vibrateOn = data === "true"
+          this.vibrateOn = String(data) === "true"
         }
       }
     })
@@ -109,9 +99,6 @@ export default {
     })
   },
 
-  // ======================
-  // format
-  // ======================
   formatTime(t) {
     const m = Math.floor(t / 60)
     const s = t % 60
@@ -122,16 +109,11 @@ export default {
     this.displayTime = this.formatTime(this.left)
   },
 
-  // ======================
-  // start / pause
-  // ======================
   startTimer() {
     if (this.running) return
-
     this.running = true
     this.startTime = Date.now()
     this.totalTime = this.left
-
     this.tick()
   },
 
@@ -140,18 +122,13 @@ export default {
     this.totalTime = this.left
   },
 
-  // ======================
-  // 🔥 唯一震动入口（关键）
-  // ======================
   doVibrate(seconds) {
-
     if (!this.vibrateOn) return
 
     const total = seconds * 1000
     let elapsed = 0
 
     const step = () => {
-
       if (!this.vibrateOn) return
 
       vibrator.vibrate({
@@ -168,11 +145,7 @@ export default {
     step()
   },
 
-  // ======================
-  // switch mode
-  // ======================
   switchMode() {
-
     if (this.mode === "work") {
       this.mode = "break"
       this.left = this.breakTime
@@ -184,19 +157,13 @@ export default {
     }
 
     this.alarmFired = false
-
     this.startTime = Date.now()
     this.updateUI()
-
     this.running = true
     this.tick()
   },
 
-  // ======================
-  // tick core
-  // ======================
   tick() {
-
     if (!this.running) return
 
     const now = Date.now()
@@ -205,17 +172,12 @@ export default {
     this.left = this.totalTime - elapsed
 
     if (this.left <= 0) {
-
       this.left = 0
       this.updateUI()
 
       if (!this.alarmFired) {
-
         this.alarmFired = true
-
-        // 🔥 只走统一震动入口
         this.doVibrate(this.vibrateDuration)
-
         this.switchMode()
       }
 
@@ -229,9 +191,6 @@ export default {
     }, 1000)
   },
 
-  // ======================
-  // setting page
-  // ======================
   onSetting() {
     router.push({
       uri: "/pages/setting"

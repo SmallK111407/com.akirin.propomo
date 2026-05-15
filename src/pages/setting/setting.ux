@@ -196,7 +196,7 @@ export default {
 
     storage.set({
       key: "vibrateOn",
-      value: String(this.vibrateOn)
+      value: this.vibrateOn ? "true" : "false"
     })
 
     storage.set({
