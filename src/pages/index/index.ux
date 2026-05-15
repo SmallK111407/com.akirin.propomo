@@ -68,6 +68,9 @@ export default {
     }
   },
 
+  // ======================
+  // settings
+  // ======================
   loadSettings() {
 
     storage.get({
@@ -106,6 +109,9 @@ export default {
     })
   },
 
+  // ======================
+  // format
+  // ======================
   formatTime(t) {
     const m = Math.floor(t / 60)
     const s = t % 60
@@ -116,6 +122,9 @@ export default {
     this.displayTime = this.formatTime(this.left)
   },
 
+  // ======================
+  // start / pause
+  // ======================
   startTimer() {
     if (this.running) return
 
@@ -131,6 +140,37 @@ export default {
     this.totalTime = this.left
   },
 
+  // ======================
+  // 🔥 唯一震动入口（关键）
+  // ======================
+  doVibrate(seconds) {
+
+    if (!this.vibrateOn) return
+
+    const total = seconds * 1000
+    let elapsed = 0
+
+    const step = () => {
+
+      if (!this.vibrateOn) return
+
+      vibrator.vibrate({
+        duration: 120
+      })
+
+      elapsed += 200
+
+      if (elapsed < total) {
+        setTimeout(step, 200)
+      }
+    }
+
+    step()
+  },
+
+  // ======================
+  // switch mode
+  // ======================
   switchMode() {
 
     if (this.mode === "work") {
@@ -151,27 +191,10 @@ export default {
     this.running = true
     this.tick()
   },
-  simulateVibrate(seconds) {
 
-const total = seconds * 1000
-let elapsed = 0
-
-const step = () => {
-
-  vibrator.vibrate({
-    duration: 120
-  })
-
-  elapsed += 200
-
-  if (elapsed < total) {
-    setTimeout(step, 200)
-  }
-}
-
-step()
-},
-
+  // ======================
+  // tick core
+  // ======================
   tick() {
 
     if (!this.running) return
@@ -186,13 +209,12 @@ step()
       this.left = 0
       this.updateUI()
 
-      // 🔥 只震动一次
       if (!this.alarmFired) {
+
         this.alarmFired = true
 
-        if (this.vibrateOn) {
-          this.simulateVibrate(this.vibrateDuration)
-        }
+        // 🔥 只走统一震动入口
+        this.doVibrate(this.vibrateDuration)
 
         this.switchMode()
       }
@@ -207,6 +229,9 @@ step()
     }, 1000)
   },
 
+  // ======================
+  // setting page
+  // ======================
   onSetting() {
     router.push({
       uri: "/pages/setting"
